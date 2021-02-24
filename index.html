@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    ul {
+      position: relative;
+      padding: 2px 25px;
+      margin: 0;
+    }
+
+    ul::before {
+      content: '';
+      position: absolute;
+      z-index: 1;
+      width: 3px;
+      bottom: 0;
+      top: 0;
+      left: 10px;
+      background-size: 3px 3px;
+      background-image: radial-gradient(#999999 30%, transparent 0);
+      background-position: center;
+    }
+
+    li {
+      list-style: none;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="app"></div>
+  <script type="module" src="/src/index.ts"></script>
+</body>
+
+</html>
