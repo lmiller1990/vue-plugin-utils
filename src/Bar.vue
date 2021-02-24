@@ -6,6 +6,16 @@
 import { defineComponent } from 'vue'
 
 export default defineComponent({
-  name: 'Bar'
+  name: 'Bar',
+  data() {
+    return {
+      msg: 'foo'
+    }
+  },
+  computed: {
+    bar() {
+      return this.msg.toUpperCase()
+    }
+  }
 })
 </script>

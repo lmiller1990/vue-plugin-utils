@@ -1,6 +1,6 @@
 import { createApp, defineComponent, h } from 'vue'
 import { TreeNode } from '..'
-import { getComponentHierarchy, FoundComponent, hierarchyToTree } from '../getComponentHierarchy'
+import { getComponentHierarchy, hierarchyToTree } from '../getComponentHierarchy'
 
 
 const createChild = (name: string) => defineComponent({
@@ -150,42 +150,74 @@ describe('getComponentHierarchy', () => {
     //   }
     // })
   })
+
+  it.only('grabs data', () => {
+    const Child = defineComponent({
+      name: 'Child',
+      computed: {
+        yelling() {
+          // @ts-ignore
+          return this.msg.toUpperCase()
+        }
+      },
+      data() {
+        return {
+          msg: 'hello world'
+        }
+      },
+      render() { 
+        return h('div', this.msg)
+      }
+    })
+    const App = defineComponent({
+      render() {
+        return h('div', [h(Child)])
+      }
+    })
+    const vm = createApp(App)
+    const mounted = vm.mount(document.createElement('div'))
+    const result = getComponentHierarchy(mounted)
+    console.log(result)
+  })
 })
 
-test('transforms a component map into a tree', () => {
-  const tree = hierarchyToTree(
-    {
-      uid: 0,
-      name: 'App',
-    },
-    {
-      1: {
-        name: 'Child',
-        parent: 0,
-        uid: 1,
-      },
-      2: {
-        name: 'Grandchild',
-        parent: 1,
-        uid: 2,
-      }
-    }
-  )
 
-  expect(tree).toEqual<TreeNode[]>([
-    {
-      name: 'App',
-      children: [
-        {
+describe('hierarchyToTree', () => {
+  it('transforms a component map into a tree', () => {
+    const tree = hierarchyToTree(
+      {
+        uid: 0,
+        name: 'App',
+      },
+      {
+        1: {
           name: 'Child',
-          children: [
-            {
-              name: 'Grandchild',
-              children: []
-            }
-          ]
+          parent: 0,
+          uid: 1,
+        },
+        2: {
+          name: 'Grandchild',
+          parent: 1,
+          uid: 2,
         }
-      ]
-    }
-  ])
+      }
+    )
+
+    expect(tree).toEqual<TreeNode[]>([
+      {
+        name: 'App',
+        children: [
+          {
+            name: 'Child',
+            children: [
+              {
+                name: 'Grandchild',
+                children: []
+              }
+            ]
+          }
+        ]
+      }
+    ])
+  })
 })

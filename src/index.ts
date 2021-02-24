@@ -27,6 +27,11 @@ export interface TreeNode {
 // @ts-expect-error
 const FileTree = defineComponent({
   name: 'FileTree',
+  data() {
+    return {
+      foo: 'Some data'
+    }
+  },
   props: {
     tree: {
       type: Array as () => TreeNode[],
@@ -39,6 +44,8 @@ const FileTree = defineComponent({
         h('ul', [
           h('li', [
             node.name,
+            Object.keys(node.data || {}).length ? ' data: ' + JSON.stringify(node.data) : '',
+            Object.keys(node.computed || {}).length ? ' computed:' + JSON.stringify(node.computed) : '',
             node.children.length ? h(FileTree, { tree: node.children }) : []
           ])
         ])
@@ -74,7 +81,6 @@ const App = defineComponent({
           }
           const treeView = hierarchyToTree(root, tr)
           tree.value = treeView
-          console.log(treeView)
         }
       }, 'Get Tree')
     ])
