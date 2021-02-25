@@ -14,6 +14,11 @@ export interface FoundComponent {
   computed?: Record<string, any>
 }
 
+export interface TreeNode extends FoundComponent {
+  name: string
+  children: TreeNode[]
+}
+
 export type FoundComponents = Record<string, FoundComponent>
 
 export const getComponentHierarchy = (app: ComponentPublicInstance) => {
@@ -53,6 +58,13 @@ const traverse = (vnode: VNode, found: FoundComponents, rootUid: number): FoundC
         if (computedData) {
           for (const k of Object.keys(computedData)) {
             computed[k] = computedData[k].call(node.component.proxy)
+          }
+        }
+
+        const setupComputed = node.component.devtoolsRawSetupState
+        if (setupComputed) {
+          for (const k of Object.keys(setupComputed)) {
+            computed[k] = setupComputed[k]._value
           }
         }
 

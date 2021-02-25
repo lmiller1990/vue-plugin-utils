@@ -1,27 +1,11 @@
-import { createApp, defineComponent, h, ref } from 'vue'
-import { FoundComponent, FoundComponents, getComponentHierarchy, hierarchyToTree } from './getComponentHierarchy'
+import { createApp, defineComponent, h, ref, onUnmounted, ComponentPublicInstance } from 'vue'
+import { FoundComponent, TreeNode, getComponentHierarchy, hierarchyToTree } from './getComponentHierarchy'
 import Foo from './Foo.vue'
 
-// const tree =  [
-//   {
-//     type: 'file',
-//     name: 'README.md'
-//   },
-//   {
-//     type: 'folder',
-//     name: 'src',
-//     contents: [
-//       {
-//         type: 'file',
-//         name: 'foo.js'
-//       },
-//     ]
-//   },
-//   {
-
-export interface TreeNode {
-  name: string
-  children: TreeNode[]
+declare global {
+  interface Window {
+    vm: ComponentPublicInstance
+  }
 }
 
 // @ts-expect-error
@@ -38,6 +22,7 @@ const FileTree = defineComponent({
       default: []
     }
   },
+
   setup(props) {
     return () => [
       props.tree.map(node => 
@@ -65,22 +50,35 @@ const App = defineComponent({
   name: 'App',
   setup() {
     const tree = ref<TreeNode[]>([])
+    const tickCount = ref(0)
+
+    const updateTree = () => {
+      const tr = getComponentHierarchy(window.vm)
+      const root: FoundComponent = {
+        uid: window.vm.$.uid,
+        name: 'App',
+      }
+      const treeView = hierarchyToTree(root, tr)
+      tree.value = treeView
+    }
+
+    const interval = setTimeout(() => {
+      updateTree()
+    }, 1000)
+
+    onUnmounted(() => {
+      clearInterval(interval)
+    })
 
     return () => h('div', [
       h(FileTree, { tree: tree.value }),
       h(Foo),
       h('h4', 'Heading 4'),
       h(Hello),
+      h('div', `Tick count ${tickCount.value}`),
       h('button', {
         onClick: () => {
-          // @ts-expect-error
-          const tr = getComponentHierarchy(window.vm)
-          const root: FoundComponent = {
-            uid: window.vm.$.uid,
-            name: 'App',
-          }
-          const treeView = hierarchyToTree(root, tr)
-          tree.value = treeView
+          updateTree()
         }
       }, 'Get Tree')
     ])
